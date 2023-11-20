@@ -33,7 +33,8 @@ class MessagesController < ApplicationController
                                   locals: {message: @message}),
           ]
         end
-        format.html { redirect_to message_url(@message), notice: 'Message was successfully created.' }
+        puts "asdasdasd"
+        format.html { redirect_to message_url, notice: 'Message was successfully created.' }
         format.json { render :show, status: :created, location: @message }
       else
         format.turbo_stream do
@@ -67,6 +68,7 @@ class MessagesController < ApplicationController
     @message.destroy
 
     respond_to do |format|
+      format.turbo_stream { render turbo_stream: turbo_stream.remove(@message) }
       format.html { redirect_to messages_url, notice: 'Message was successfully destroyed.' }
       format.json { head :no_content }
     end
