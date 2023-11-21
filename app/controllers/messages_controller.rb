@@ -40,7 +40,9 @@ class MessagesController < ApplicationController
                                   partial: "messages/message",
                                   locals: {message: @message}),
             turbo_stream.update('message_counter', 
-                                  Message.count)
+                                  Message.count),
+            turbo_stream.update('notice', 
+                                "Message with ID: <span style='color: red;'>#{@message.id}</span> is created")
                                     
           ]
         end
@@ -66,9 +68,13 @@ class MessagesController < ApplicationController
     respond_to do |format|
       if @message.update(message_params)
         format.turbo_stream do 
-          render turbo_stream: turbo_stream.update(@message,
+          render turbo_stream: [
+                        turbo_stream.update(@message,
                                                    partial: "messages/message",
-                                                   locals: {message: @message})
+                                                   locals: {message: @message}),
+                         turbo_stream.update('notice', 
+                                      "Message with ID: <span style='color: red;'>#{@message.id}</span> is updated")
+                         ]                                     
         end
         format.html { redirect_to message_url(@message), notice: 'Message was successfully updated.' }
         format.json { render :show, status: :ok, location: @message }
@@ -92,7 +98,9 @@ class MessagesController < ApplicationController
       format.turbo_stream do 
          render turbo_stream: [
          turbo_stream.remove(@message), 
-         turbo_stream.update('message_counter', Message.count)
+         turbo_stream.update('message_counter', Message.count),
+         turbo_stream.update('notice', 
+                              "Message with ID: <span style='color: red;'>#{@message.id}</span> is destroyed")
          ]
         end
       format.html { redirect_to messages_url, notice: 'Message was successfully destroyed.' }
