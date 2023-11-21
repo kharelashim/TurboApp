@@ -1,0 +1,7 @@
+
+<% messages.each do |message| %>
+  <br>
+  <%= link_to message do %>
+    <%= highlight(message.body, params.dig(:body_search)) %>
+  <% end %>
+<% end %>

@@ -6,6 +6,24 @@ class MessagesController < ApplicationController
     @messages = Message.order(created_at: 'desc')
   end
 
+  def search
+    if params[:body_search].present?
+      @messages = Message.where('body ILIKE ?', "%#{params[:body_search]}%").order(created_at: :desc)
+    else
+      @messages = []
+    end
+    
+    respond_to do |format|
+      format.turbo_stream do
+          render turbo_stream: [
+            turbo_stream.update("search_results",
+            partial: "messages/search_results",
+            locals: { messages: @messages })
+          ]
+      end
+    end
+  end
+
   # GET /messages/1 or /messages/1.json
   def show; end
 
@@ -98,7 +116,8 @@ class MessagesController < ApplicationController
       format.turbo_stream do 
          render turbo_stream: [
          turbo_stream.remove(@message), 
-         turbo_stream.update('message_counter', Message.count),
+         turbo_stream.update('message_counter', 
+                               Message.count),
          turbo_stream.update('notice', 
                               "Message with ID: <span style='color: red;'>#{@message.id}</span> is destroyed")
          ]
